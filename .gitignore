@@ -1,0 +1,4 @@
+*.gitignored
+*.gitignored.*
+
+node_modules/
