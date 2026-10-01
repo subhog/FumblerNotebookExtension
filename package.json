@@ -1,0 +1,61 @@
+{
+  "name": "fumbler-notebook",
+  "displayName": "Fumbler Notebook",
+  "description": "Open .fum.py files as notebooks with Python, Markdown, and Image cells, stored as valid Python.",
+  "version": "0.0.1",
+  "publisher": "errata.art",
+  "engines": {
+    "vscode": "^1.84.0"
+  },
+  "categories": [
+    "Notebooks"
+  ],
+  "activationEvents": [
+    "onNotebook:fumbler-notebook"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "notebooks": [
+      {
+        "type": "fumbler-notebook",
+        "displayName": "Fumbler Notebook",
+        "priority": "default",
+        "selector": [
+          {
+            "filenamePattern": "*.fum.py"
+          }
+        ]
+      }
+    ],
+    "languages": [
+      {
+        "id": "fumbler-image",
+        "aliases": [
+          "Image",
+          "fumbler-image"
+        ]
+      }
+    ],
+    "commands": [
+      {
+        "command": "fumbler-notebook.insertImageCell",
+        "title": "Insert Image Cell",
+        "category": "Fumbler Notebook"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "pnpm run build",
+    "build": "tsc -p ./",
+    "watch": "tsc -w -p ./",
+    "package": "vsce package"
+  },
+  "devDependencies": {
+    "@types/node": "^24.7.2",
+    "@types/vscode": "1.105.0",
+    "typescript": "5.9.3"
+  },
+  "dependencies": {
+    "@vscode/vsce": "3.6.2"
+  }
+}
