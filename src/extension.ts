@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { FumblerNotebookController } from './controller';
 import { IMAGE_LANGUAGE_ID, NOTEBOOK_TYPE } from './format';
+import { placeholderImageOutput } from './imageOutput';
 import { FumblerNotebookSerializer } from './serializer';
 
 export function activate(context: vscode.ExtensionContext): void {
@@ -13,6 +14,7 @@ export function activate(context: vscode.ExtensionContext): void {
     }),
     vscode.workspace.onDidOpenNotebookDocument((notebook) => {
       if (notebook.notebookType === NOTEBOOK_TYPE) {
+        controller.preferNotebook(notebook);
         void controller.renderImageCells(notebook);
       }
     }),
@@ -48,6 +50,10 @@ export function activate(context: vscode.ExtensionContext): void {
         'assets/sample.svg',
         IMAGE_LANGUAGE_ID
       );
+      const placeholder = placeholderImageOutput(cell.value);
+      if (placeholder) {
+        cell.outputs = [placeholder];
+      }
       const index = editor.selections[0]?.end ?? editor.notebook.cellCount;
       const edit = new vscode.WorkspaceEdit();
       edit.set(editor.notebook.uri, [vscode.NotebookEdit.insertCells(index, [cell])]);
@@ -57,6 +63,7 @@ export function activate(context: vscode.ExtensionContext): void {
 
   for (const notebook of vscode.workspace.notebookDocuments) {
     if (notebook.notebookType === NOTEBOOK_TYPE) {
+      controller.preferNotebook(notebook);
       void controller.renderImageCells(notebook);
     }
   }

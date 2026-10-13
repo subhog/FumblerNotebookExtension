@@ -24,6 +24,16 @@ export function imageRefFromCellText(text: string): string {
   return '';
 }
 
+export function placeholderImageOutput(cellText: string): vscode.NotebookCellOutput | undefined {
+  const ref = imageRefFromCellText(cellText);
+  if (!ref) {
+    return undefined;
+  }
+  return new vscode.NotebookCellOutput([
+    vscode.NotebookCellOutputItem.text(`![](${ref})`, 'text/markdown'),
+  ]);
+}
+
 export async function imageOutputForCell(
   notebookUri: vscode.Uri,
   cellText: string

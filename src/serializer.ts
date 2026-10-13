@@ -6,6 +6,7 @@ import {
   parseFumblerSource,
   serializeFumblerSource,
 } from './format';
+import { placeholderImageOutput } from './imageOutput';
 
 export class FumblerNotebookSerializer implements vscode.NotebookSerializer {
   async deserializeNotebook(
@@ -39,5 +40,12 @@ function toNotebookCell(cell: FumblerCell): vscode.NotebookCellData {
     cell.type === 'markdown'
       ? vscode.NotebookCellKind.Markup
       : vscode.NotebookCellKind.Code;
-  return new vscode.NotebookCellData(kind, cell.value, language);
+  const data = new vscode.NotebookCellData(kind, cell.value, language);
+  if (cell.type === 'image') {
+    const placeholder = placeholderImageOutput(cell.value);
+    if (placeholder) {
+      data.outputs = [placeholder];
+    }
+  }
+  return data;
 }
