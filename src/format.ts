@@ -1,7 +1,10 @@
 export const NOTEBOOK_TYPE = 'fumbler-notebook';
 export const IMAGE_LANGUAGE_ID = 'fumbler-image';
+export const FREECAD_LANGUAGE_ID = 'fumbler-freecad';
+export const SVG_LANGUAGE_ID = 'fumbler-svg';
+export const PYTHON_LANGUAGE_ID = 'python';
 
-export type FumblerCellType = 'python' | 'markdown' | 'image';
+export type FumblerCellType = 'python' | 'freecad' | 'markdown' | 'image' | 'svg';
 
 export interface FumblerCell {
   type: FumblerCellType;
@@ -16,8 +19,12 @@ export function languageForCellType(type: FumblerCellType): string {
       return 'markdown';
     case 'image':
       return IMAGE_LANGUAGE_ID;
+    case 'svg':
+      return SVG_LANGUAGE_ID;
+    case 'python':
+      return PYTHON_LANGUAGE_ID;
     default:
-      return 'python';
+      return FREECAD_LANGUAGE_ID;
   }
 }
 
@@ -25,10 +32,23 @@ export function cellTypeForLanguage(language: string, isMarkup: boolean): Fumble
   if (language === IMAGE_LANGUAGE_ID) {
     return 'image';
   }
+  if (language === SVG_LANGUAGE_ID) {
+    return 'svg';
+  }
+  if (language === PYTHON_LANGUAGE_ID) {
+    return 'python';
+  }
+  if (language === FREECAD_LANGUAGE_ID) {
+    return 'freecad';
+  }
   if (language === 'markdown' || isMarkup) {
     return 'markdown';
   }
-  return 'python';
+  return 'freecad';
+}
+
+function isCommentedCell(type: FumblerCellType): boolean {
+  return type === 'markdown' || type === 'image' || type === 'svg';
 }
 
 export function parseFumblerSource(text: string): FumblerCell[] {
@@ -44,16 +64,15 @@ export function parseFumblerSource(text: string): FumblerCell[] {
       return;
     }
 
-    const type = currentType ?? 'python';
+    const type = currentType ?? 'freecad';
     let bodyLines = trimTrailingEmpty(currentLines);
     if (sawDelimiter) {
       bodyLines = trimLeadingEmpty(bodyLines);
     }
 
-    const value =
-      type === 'markdown' || type === 'image'
-        ? uncommentLines(bodyLines).join('\n')
-        : bodyLines.join('\n');
+    const value = isCommentedCell(type)
+      ? uncommentLines(bodyLines).join('\n')
+      : bodyLines.join('\n');
 
     cells.push({ type, value });
     currentLines = [];
@@ -73,7 +92,7 @@ export function parseFumblerSource(text: string): FumblerCell[] {
   flush();
 
   if (cells.length === 0) {
-    return [{ type: 'python', value: '' }];
+    return [{ type: 'freecad', value: '' }];
   }
   return cells;
 }
@@ -84,8 +103,8 @@ export function serializeFumblerSource(cells: FumblerCell[]): string {
   }
 
   const parts = cells.map((cell) => {
-    const header = cell.type === 'python' ? '# %%' : `# %% [${cell.type}]`;
-    const body = cell.type === 'python' ? cell.value : commentLines(cell.value);
+    const header = cell.type === 'freecad' ? '# %%' : `# %% [${cell.type}]`;
+    const body = isCommentedCell(cell.type) ? commentLines(cell.value) : cell.value;
     if (body === '') {
       return header;
     }
@@ -100,14 +119,20 @@ function parseDelimiter(line: string): FumblerCellType | null {
   if (!match) {
     return null;
   }
-  const raw = (match[1] || match[2] || 'python').toLowerCase();
+  const raw = (match[1] || match[2] || 'freecad').toLowerCase();
+  if (raw === 'python' || raw === 'py') {
+    return 'python';
+  }
   if (raw === 'markdown' || raw === 'md') {
     return 'markdown';
   }
   if (raw === 'image' || raw === 'img') {
     return 'image';
   }
-  return 'python';
+  if (raw === 'svg') {
+    return 'svg';
+  }
+  return 'freecad';
 }
 
 function uncommentLines(lines: string[]): string[] {

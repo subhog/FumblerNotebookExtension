@@ -1,0 +1,8 @@
+{
+  "scopeName": "text.fumbler-svg",
+  "patterns": [
+    {
+      "include": "text.xml"
+    }
+  ]
+}

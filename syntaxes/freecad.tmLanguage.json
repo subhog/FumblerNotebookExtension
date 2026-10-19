@@ -1,0 +1,8 @@
+{
+  "scopeName": "source.fumbler-freecad",
+  "patterns": [
+    {
+      "include": "source.python"
+    }
+  ]
+}

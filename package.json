@@ -1,7 +1,7 @@
 {
   "name": "fumbler-notebook",
   "displayName": "Fumbler Notebook",
-  "description": "Open .fum.py files as notebooks with Python, Markdown, and Image cells, stored as valid Python.",
+  "description": "Open .fum.py files as notebooks with Python, FreeCAD, Markdown, Image, and SVG cells, stored as valid Python.",
   "version": "0.0.1",
   "publisher": "errata.art",
   "engines": {
@@ -34,12 +34,63 @@
           "Image",
           "fumbler-image"
         ]
+      },
+      {
+        "id": "fumbler-freecad",
+        "aliases": [
+          "FreeCAD",
+          "fumbler-freecad"
+        ]
+      },
+      {
+        "id": "fumbler-svg",
+        "aliases": [
+          "SVG",
+          "fumbler-svg"
+        ]
       }
     ],
+    "grammars": [
+      {
+        "language": "fumbler-freecad",
+        "scopeName": "source.fumbler-freecad",
+        "path": "./syntaxes/freecad.tmLanguage.json"
+      },
+      {
+        "language": "fumbler-svg",
+        "scopeName": "text.fumbler-svg",
+        "path": "./syntaxes/svg.tmLanguage.json"
+      }
+    ],
+    "configuration": {
+      "title": "Fumbler Notebook",
+      "properties": {
+        "fumbler.pythonPath": {
+          "type": "string",
+          "default": "python3",
+          "description": "Python used to run Python cells for SVG placeholders."
+        }
+      }
+    },
     "commands": [
       {
         "command": "fumbler-notebook.insertImageCell",
         "title": "Insert Image Cell",
+        "category": "Fumbler Notebook"
+      },
+      {
+        "command": "fumbler-notebook.insertPythonCell",
+        "title": "Insert Python Cell",
+        "category": "Fumbler Notebook"
+      },
+      {
+        "command": "fumbler-notebook.insertFreecadCell",
+        "title": "Insert FreeCAD Cell",
+        "category": "Fumbler Notebook"
+      },
+      {
+        "command": "fumbler-notebook.insertSvgCell",
+        "title": "Insert SVG Cell",
         "category": "Fumbler Notebook"
       }
     ]
