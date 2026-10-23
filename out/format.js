@@ -1,12 +1,15 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.IMAGE_LANGUAGE_ID = exports.NOTEBOOK_TYPE = void 0;
+exports.PYTHON_LANGUAGE_ID = exports.SVG_LANGUAGE_ID = exports.FREECAD_LANGUAGE_ID = exports.IMAGE_LANGUAGE_ID = exports.NOTEBOOK_TYPE = void 0;
 exports.languageForCellType = languageForCellType;
 exports.cellTypeForLanguage = cellTypeForLanguage;
 exports.parseFumblerSource = parseFumblerSource;
 exports.serializeFumblerSource = serializeFumblerSource;
 exports.NOTEBOOK_TYPE = 'fumbler-notebook';
 exports.IMAGE_LANGUAGE_ID = 'fumbler-image';
+exports.FREECAD_LANGUAGE_ID = 'fumbler-freecad';
+exports.SVG_LANGUAGE_ID = 'fumbler-svg';
+exports.PYTHON_LANGUAGE_ID = 'python';
 const DELIMITER = /^\s*# %%(?:\s*(?:\[(\w+)\]|(\w+)))?\s*$/;
 function languageForCellType(type) {
     switch (type) {
@@ -14,18 +17,34 @@ function languageForCellType(type) {
             return 'markdown';
         case 'image':
             return exports.IMAGE_LANGUAGE_ID;
+        case 'svg':
+            return exports.SVG_LANGUAGE_ID;
+        case 'python':
+            return exports.PYTHON_LANGUAGE_ID;
         default:
-            return 'python';
+            return exports.FREECAD_LANGUAGE_ID;
     }
 }
 function cellTypeForLanguage(language, isMarkup) {
     if (language === exports.IMAGE_LANGUAGE_ID) {
         return 'image';
     }
+    if (language === exports.SVG_LANGUAGE_ID) {
+        return 'svg';
+    }
+    if (language === exports.PYTHON_LANGUAGE_ID) {
+        return 'python';
+    }
+    if (language === exports.FREECAD_LANGUAGE_ID) {
+        return 'freecad';
+    }
     if (language === 'markdown' || isMarkup) {
         return 'markdown';
     }
-    return 'python';
+    return 'freecad';
+}
+function isCommentedCell(type) {
+    return type === 'markdown' || type === 'image' || type === 'svg';
 }
 function parseFumblerSource(text) {
     const lines = text.split(/\r?\n/);
@@ -38,12 +57,12 @@ function parseFumblerSource(text) {
             currentLines = [];
             return;
         }
-        const type = currentType ?? 'python';
+        const type = currentType ?? 'freecad';
         let bodyLines = trimTrailingEmpty(currentLines);
         if (sawDelimiter) {
             bodyLines = trimLeadingEmpty(bodyLines);
         }
-        const value = type === 'markdown' || type === 'image'
+        const value = isCommentedCell(type)
             ? uncommentLines(bodyLines).join('\n')
             : bodyLines.join('\n');
         cells.push({ type, value });
@@ -63,7 +82,7 @@ function parseFumblerSource(text) {
     }
     flush();
     if (cells.length === 0) {
-        return [{ type: 'python', value: '' }];
+        return [{ type: 'freecad', value: '' }];
     }
     return cells;
 }
@@ -72,8 +91,8 @@ function serializeFumblerSource(cells) {
         return '';
     }
     const parts = cells.map((cell) => {
-        const header = cell.type === 'python' ? '# %%' : `# %% [${cell.type}]`;
-        const body = cell.type === 'python' ? cell.value : commentLines(cell.value);
+        const header = cell.type === 'freecad' ? '# %%' : `# %% [${cell.type}]`;
+        const body = isCommentedCell(cell.type) ? commentLines(cell.value) : cell.value;
         if (body === '') {
             return header;
         }
@@ -86,14 +105,20 @@ function parseDelimiter(line) {
     if (!match) {
         return null;
     }
-    const raw = (match[1] || match[2] || 'python').toLowerCase();
+    const raw = (match[1] || match[2] || 'freecad').toLowerCase();
+    if (raw === 'python' || raw === 'py') {
+        return 'python';
+    }
     if (raw === 'markdown' || raw === 'md') {
         return 'markdown';
     }
     if (raw === 'image' || raw === 'img') {
         return 'image';
     }
-    return 'python';
+    if (raw === 'svg') {
+        return 'svg';
+    }
+    return 'freecad';
 }
 function uncommentLines(lines) {
     return lines.map((line) => {

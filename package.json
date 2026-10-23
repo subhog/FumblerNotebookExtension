@@ -3,9 +3,9 @@
   "displayName": "Fumbler Notebook",
   "description": "Open .fum.py files as notebooks with Python, FreeCAD, Markdown, Image, and SVG cells, stored as valid Python.",
   "version": "0.0.1",
-  "publisher": "errata.art",
+  "publisher": "hubert",
   "engines": {
-    "vscode": "^1.84.0"
+    "vscode": "1.140.0"
   },
   "categories": [
     "Notebooks"
@@ -102,11 +102,11 @@
     "package": "vsce package"
   },
   "devDependencies": {
-    "@types/node": "^24.7.2",
-    "@types/vscode": "1.105.0",
-    "typescript": "5.9.3"
+    "@types/node": "26.6.5",
+    "@types/vscode": "1.140.0",
+    "typescript": "7.0.2"
   },
   "dependencies": {
-    "@vscode/vsce": "3.6.2"
+    "@vscode/vsce": "4.0.0"
   }
 }
